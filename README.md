@@ -1,2 +1,2 @@
-# RedsNet-ApplicazioneInteressante
-Client for RedsNet
+# ApplicazioneInteressante
+App bot for RedsNet BotNet

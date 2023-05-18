@@ -8,4 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="appBg">#a8a8a8</color>
+    <color name="fozzaNapoli">#2a71fe</color>
+    <color name="fozzaNapoli2">#001133</color>
+    <color name="fozzaNapoli3">#A2C1FF</color>
 </resources>

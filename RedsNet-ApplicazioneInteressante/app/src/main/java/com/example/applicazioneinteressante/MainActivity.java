@@ -2,8 +2,8 @@ package com.example.applicazioneinteressante;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -11,16 +11,91 @@ public class MainActivity extends AppCompatActivity {
     private String operation;
     private double op1=0, op2=0, prevResult=0;
     private TextView current,history;
+    private class MyNumberButton{
+        Button b;
+        @SuppressLint("SetTextI18n")
+        public MyNumberButton(Button v){
+            b=v;
+            b.setOnClickListener(v1 -> {
+                if(current.getText().equals("0") && b.getText().equals("0"));
+                else if (current.getText().equals("0") && !b.getText().equals("0")) current.setText(b.getText());
+                else if(!current.getText().equals("0") && prevResult != 0) { current.setText(b.getText()); }
+                else current.setText(current.getText() + b.getText().toString());
+            });
+        }
+    }
 
-    private class myOpButton {
+    private class MyBaseOpButton {
         Button b;
 
-        public myOpButton (Button v,String op){
+        @SuppressLint("SetTextI18n")
+        public MyBaseOpButton (Button v, String op){
             b=v;
             b.setOnClickListener(v1 -> {
                 if(!operation.equals("")){
-                    operation=op;
+                    if(prevResult==0){
+                        operation = op;
+                        history.setText(op1 + operation);
+                        current.setText("0");
+                    }
+                    else {
+                        operation = op;
+                        op1 = prevResult;
+                        history.setText(op1 + operation);
+                        current.setText("0");
+                    }
+                }
+                else {
+                    op1 = Double.parseDouble(current.getText().toString());
+                    operation = op;
+                    history.setText(op1 + operation);
+                    current.setText("0");
+                }
+            });
+        }
+    }
 
+    private class MyAdvOpButton{
+
+        Button b;
+        @SuppressLint("SetTextI18n")
+        public MyAdvOpButton(Button v, String op){
+            b=v;
+            b.setOnClickListener(v1 -> {
+                if(!operation.equals("")) current.setError("Input error");
+                else {
+                    double opy = Double.parseDouble(current.getText().toString());
+                    switch (op){
+                        case "log":
+                                if (opy <= 0) {
+                                    current.setError("Input Error");
+                                    current.setText("0");
+                                }
+                                else {
+                                    op1 = opy;
+                                    prevResult = Math.log(op1);
+                                    history.setText("ln(" + op1 + ")");
+                                    current.setText(Double.toString(prevResult));
+                                }
+                            break;
+                        case "sqrt":
+                                if (op1 < 0) {
+                                    current.setError("Input Error");
+                                    current.setText("0");
+                                }
+                                else {
+                                    op1 = opy;
+                                    prevResult = Math.sqrt(op1);
+                                    history.setText("sqrt("+op1+")");
+                                    current.setText(Double.toString(prevResult));
+                                }
+                            break;
+                        case "pow":
+                            op1 = opy;
+                            operation = op;
+                            history.setText(op1+"^");
+                            break;
+                    }
                 }
             });
         }
@@ -35,165 +110,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Initialize components in the class
+    @SuppressLint("SetTextI18n")
     void initializeComponents(){
-        Button zero=findViewById(R.id.number0);
-        zero.setOnClickListener(v -> {
-            if(current.getText().equals("0"));
-            else if(!current.getText().equals("0") && prevResult!=0){ current.setText(zero.getText()); }
-            else current.setText(current.getText() + zero.getText().toString());
+        //Add listener on number buttons with inner class MyNumberButton
+        MyNumberButton zero = new MyNumberButton((Button) findViewById(R.id.number0));
+        MyNumberButton one = new MyNumberButton((Button) findViewById(R.id.number1));
+        MyNumberButton two = new MyNumberButton((Button) findViewById(R.id.number2));
+        MyNumberButton three = new MyNumberButton((Button) findViewById(R.id.number3));
+        MyNumberButton four = new MyNumberButton((Button) findViewById(R.id.number4));
+        MyNumberButton five = new MyNumberButton((Button) findViewById(R.id.number5));
+        MyNumberButton six = new MyNumberButton((Button) findViewById(R.id.number6));
+        MyNumberButton seven = new MyNumberButton((Button) findViewById(R.id.number7));
+        MyNumberButton eight = new MyNumberButton((Button) findViewById(R.id.number8));
+        MyNumberButton nine = new MyNumberButton((Button) findViewById(R.id.number9));
+
+        //Add listener on simple operation's button with inner class MyBaseOpButton
+        MyBaseOpButton plus = new MyBaseOpButton((Button) findViewById(R.id.opPlus),"+");
+        MyBaseOpButton minus = new MyBaseOpButton((Button) findViewById(R.id.opMinus),"-");
+        MyBaseOpButton muls = new MyBaseOpButton((Button) findViewById(R.id.opMuls),"*");
+        MyBaseOpButton divide = new MyBaseOpButton((Button) findViewById(R.id.opDivide),"/");
+
+        //Add listener on advanced operation's button with inner class MyAdvOpButton
+        MyAdvOpButton log = new MyAdvOpButton((Button) findViewById(R.id.opLog),"log");
+        MyAdvOpButton sqrt = new MyAdvOpButton((Button) findViewById(R.id.opSqrt),"sqrt");
+        MyAdvOpButton pow = new MyAdvOpButton((Button) findViewById(R.id.opPower),"pow");
+
+        this.<Button>findViewById(R.id.pointBtn).setOnClickListener(v -> {
+                int integerPart = (int) Double.parseDouble(current.getText().toString());
+                if ((Double.parseDouble(current.getText().toString())-integerPart) != 0);
+                else current.setText(current.getText() + ".");
         });
-        Button one=findViewById(R.id.number1);
-        one.setOnClickListener(v -> {
-            if(current.getText().equals("0")) { current.setText(one.getText()); }
-            else if(!current.getText().equals("0") && prevResult!=0) { current.setText(one.getText()); }
-            else current.setText(current.getText() + one.getText().toString());
+
+        Button equal=findViewById(R.id.opEqual);    //TODO
+        Button ans=findViewById(R.id.ansBtn);       //TODO
+
+        this.<Button>findViewById(R.id.cancel).setOnClickListener(v -> current.setText("0"));
+        this.<Button>findViewById(R.id.cancelAll).setOnClickListener(v -> {
+            history.setText("");
+            current.setText("0");
+            prevResult=0;
         });
-        Button two=findViewById(R.id.number2);
-        two.setOnClickListener(v -> {
-            if(current.getText().equals("0")) { current.setText(two.getText()); }
-            else if(!current.getText().equals("0") && prevResult!=0) { current.setText(two.getText()); }
-            else current.setText(current.getText() + two.getText().toString());
-        });
-        Button three=findViewById(R.id.number3);
-        three.setOnClickListener(v -> {
-            if(current.getText().equals("0")) { current.setText(three.getText()); }
-            else if(!current.getText().equals("0") && prevResult!=0) { current.setText(three.getText()); }
-            else current.setText(current.getText() + three.getText().toString());
-        });
-        Button four=findViewById(R.id.number4);
-        four.setOnClickListener(v -> {
-            if(current.getText().equals("0")) { current.setText(four.getText()); }
-            else if(!current.getText().equals("0") && prevResult!=0) { current.setText(four.getText()); }
-            else current.setText(current.getText() + four.getText().toString());
-        });
-        Button five=findViewById(R.id.number5);
-        five.setOnClickListener(v -> {
-            if(current.getText().equals("0")) { current.setText(five.getText()); }
-            else if(!current.getText().equals("0") && prevResult!=0) { current.setText(five.getText()); }
-            else current.setText(current.getText() + five.getText().toString());
-        });
-        Button six=findViewById(R.id.number6);
-        six.setOnClickListener(v -> {
-            if(current.getText().equals("0")) { current.setText(six.getText()); }
-            else if(!current.getText().equals("0") && prevResult != 0) { current.setText(six.getText()); }
-            else current.setText(current.getText() + six.getText().toString());
-        });
-        Button seven=findViewById(R.id.number7);
-        seven.setOnClickListener(v -> {
-            if(current.getText().equals("0")) { current.setText(seven.getText()); }
-            else if(!current.getText().equals("0") && prevResult != 0) { current.setText(seven.getText()); }
-            else current.setText(current.getText() + seven.getText().toString());
-        });
-        Button eight=findViewById(R.id.number8);
-        eight.setOnClickListener(v -> {
-            if(current.getText().equals("0")) { current.setText(eight.getText()); }
-            else if(!current.getText().equals("0") && prevResult != 0) { current.setText(eight.getText()); }
-            else current.setText(current.getText() + eight.getText().toString());
-        });
-        Button nine=findViewById(R.id.number9);
-        nine.setOnClickListener(v -> {
-            if(current.getText().equals("0")) { current.setText(nine.getText()); }
-            else if(!current.getText().equals("0") && prevResult != 0) { current.setText(nine.getText()); }
-            else current.setText(current.getText() + nine.getText().toString());
-        });
-        Button plus=findViewById(R.id.opPlus);
-        plus.setOnClickListener(v -> {
-            if(!operation.equals("")){
-                if (prevResult == 0) {
-                    operation = "+";
-                    history.setText(Double.toString(op1) + operation);
-                }
-                else {
-                    operation="+";
-                    op1=prevResult;
-                    history.setText(Double.toString(op1)+operation);
-                    current.setText("0");
-                }
-            }
-            else {
-                op1 = Double.parseDouble(current.getText().toString());
-                operation = "+";
-                history.setText(current + operation);
-            }
-        });
-        Button minus=findViewById(R.id.opMinus);
-        minus.setOnClickListener(v -> {
-            if(!operation.equals("")){
-                if(prevResult == 0){
-                    operation="-";
-                    history.setText(Double.toString(op1)+operation);
-                }
-                else {
-                    operation="-";
-                    op1=prevResult;
-                    history.setText(Double.toString(op1)+operation);
-                    current.setText("0");
-                }
-            }
-            else {
-                op1 = Double.parseDouble(current.getText().toString());
-                operation = "-";
-                history.setText(current + operation);
-            }
-        });
-        Button muls=findViewById(R.id.opMuls);
-        muls.setOnClickListener(v -> {
-            if(!operation.equals("")){
-                if(prevResult == 0){
-                    operation="*";
-                    history.setText(Double.toString(op1)+operation);
-                }
-                else{
-                    operation="*";
-                    op1=prevResult;
-                    history.setText(Double.toString(op1)+operation);
-                    current.setText("0");
-                }
-            }
-            else {
-                op1 = Double.parseDouble(current.getText().toString());
-                operation = "*";
-                history.setText(current + operation);
-            }
-        });
-        Button divide=findViewById(R.id.opDivide);
-        divide.setOnClickListener(v -> {
-            if(!operation.equals("")){
-                operation="/";
-                history.setText(current.getText()+operation);
-            }
-            else {
-                op1 = Double.parseDouble(current.getText().toString());
-                operation = "/";
-                history.setText(current + operation);
-            }
-        });
-        Button log=findViewById(R.id.opLog);
-        log.setOnClickListener(v -> {
-            if(!operation.equals("")){ current.setError("Input error"); }
-            else {
-                op1 = Double.parseDouble(current.getText().toString());
-                history.setText("ln("+current.getText()+")");
-                prevResult = Math.log(op1);
-                current.setText(Double.toString(prevResult));
-            }
-        });
-        Button sqrt=findViewById(R.id.opSqrt);
-        sqrt.setOnClickListener(v -> {
-            if(!operation.equals("")){ current.setError("Input error"); }
-            else {
-                op1 = Double.parseDouble(current.getText().toString());
-                history.setText("sqrt("+current.getText()+")");
-                prevResult = Math.sqrt(op1);
-                current.setText(Double.toString(prevResult));
-            }
-        });
-        Button power=findViewById(R.id.opPower);
-        Button point=findViewById(R.id.pointBtn);
-        Button equal=findViewById(R.id.opEqual);
-        Button ans=findViewById(R.id.ansBtn);
-        Button cancel=findViewById(R.id.cancel);
-        Button cancellAll=findViewById(R.id.cancelAll);
         current=findViewById(R.id.insertion);
         history=findViewById(R.id.ans);
     }

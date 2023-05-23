@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">ApplicazioneInteressante</string>
+    <string name="app_name" translatable="false">ApplicazioneInteressante</string>
+    <string name="zero">0</string>
+    <string name="plus">+</string>
+    <string name="three">3</string>
+    <string name="two">2</string>
+    <string name="one">1</string>
+    <string name="minus">-</string>
+    <string name="six">6</string>
+    <string name="five">5</string>
+    <string name="four">4</string>
+    <string name="muls">x</string>
+    <string name="nine">9</string>
+    <string name="eight">8</string>
+    <string name="seven">7</string>
+    <string name="divide">/</string>
+    <string name="log">Log</string>
+    <string name="pow">x^n</string>
+    <string name="sqrt">sqrt</string>
+    <string name="cancelBtn">C</string>
+    <string name="cancellAllBtn">AC</string>
+    <string name="appCredits">designed by RedsNet</string>
+    <string name="point">.</string>
+    <string name="ans">Ans</string>
+    <string name="equal">=</string>
 </resources>

@@ -37,15 +37,16 @@
             android:gravity="end"
             android:textAlignment="textEnd"
             android:textSize="35sp"
-            android:text="0" />
+            android:text="@string/zero" />
 
         <TextView
             android:id="@+id/creditsText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
             android:fontFamily="serif"
-            android:text="designed by RedsNet"/>
+            android:text="@string/appCredits"
+            android:textAlignment="center"
+            tools:ignore="TextContrastCheck" />
 
     </LinearLayout>
 
@@ -62,27 +63,31 @@
             android:orientation="horizontal"
             android:layout_marginBottom="5dp"
             android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp">
+            android:layout_marginEnd="10dp"
+            android:gravity="end">
 
             <Button
                 android:id="@+id/cancelAll"
-                android:backgroundTint="@drawable/button_color_scheme"
                 android:layout_width="wrap_content"
                 android:layout_height="70dp"
                 android:layout_marginEnd="10dp"
-                app:cornerRadius="10dp"
+                android:backgroundTint="@drawable/button_color_scheme"
+                android:text="@string/cancellAllBtn"
                 android:textSize="18sp"
-                android:text="AC" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,TextContrastCheck" />
 
             <Button
                 android:id="@+id/cancel"
-                android:backgroundTint="@drawable/button_color_scheme"
                 android:layout_width="wrap_content"
                 android:layout_height="70dp"
                 android:layout_marginEnd="10dp"
-                app:cornerRadius="10dp"
+                android:backgroundTint="@drawable/button_color_scheme"
+                android:text="@string/cancelBtn"
+                android:textColor="@color/white"
                 android:textSize="18sp"
-                android:text="C" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,TextContrastCheck,TextContrastCheck" />
 
         </LinearLayout>
 
@@ -97,14 +102,15 @@
 
             <Button
                 android:id="@+id/opSqrt"
-                android:backgroundTint="@drawable/button_color_scheme"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
-                android:layout_weight="0.25"
                 android:layout_marginEnd="10dp"
-                app:cornerRadius="10dp"
+                android:layout_weight="0.25"
+                android:backgroundTint="@drawable/button_color_scheme"
+                android:text="@string/sqrt"
                 android:textSize="18sp"
-                android:text="sqrt" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,TextContrastCheck,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/opPower"
@@ -115,8 +121,8 @@
                 android:layout_marginEnd="10dp"
                 app:cornerRadius="10dp"
                 android:textSize="20sp"
-                android:text="x^n"
-                />
+                android:text="@string/pow"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/opLog"
@@ -127,8 +133,8 @@
                 android:layout_marginEnd="10dp"
                 app:cornerRadius="10dp"
                 android:textSize="20sp"
-                android:text="Log"
-                />
+                android:text="@string/log"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/opDivide"
@@ -138,8 +144,8 @@
                 android:layout_weight="0.25"
                 app:cornerRadius="10dp"
                 android:textSize="35sp"
-                android:text="/"
-                />
+                android:text="@string/divide"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
         </LinearLayout>
 
@@ -160,9 +166,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="7"
+                android:text="@string/seven"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/number8"
@@ -171,9 +178,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="8"
+                android:text="@string/eight"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/number9"
@@ -182,9 +190,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="9"
+                android:text="@string/nine"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/opMuls"
@@ -192,9 +201,10 @@
                 android:layout_height="70dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="x"
+                android:text="@string/muls"
                 android:textSize="25sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
         </LinearLayout>
 
@@ -215,9 +225,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="4"
+                android:text="@string/four"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/number5"
@@ -226,9 +237,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="5"
+                android:text="@string/five"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/number6"
@@ -237,9 +249,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="6"
+                android:text="@string/six"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/opMinus"
@@ -247,9 +260,10 @@
                 android:layout_height="70dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="-"
+                android:text="@string/minus"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
         </LinearLayout>
 
@@ -270,9 +284,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="1"
+                android:text="@string/one"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/number2"
@@ -281,9 +296,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="2"
+                android:text="@string/two"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/number3"
@@ -292,9 +308,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="3"
+                android:text="@string/three"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/opPlus"
@@ -302,9 +319,10 @@
                 android:layout_height="70dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="+"
+                android:text="@string/plus"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
         </LinearLayout>
 
@@ -326,9 +344,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="0"
+                android:text="@string/zero"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,DuplicateSpeakableTextCheck,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/pointBtn"
@@ -337,9 +356,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="."
+                android:text="@string/point"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/ansBtn"
@@ -348,9 +368,10 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="Ans"
+                android:text="@string/ans"
                 android:textSize="24sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
             <Button
                 android:id="@+id/opEqual"
@@ -358,9 +379,10 @@
                 android:layout_height="70dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@drawable/button_color_scheme"
-                android:text="="
+                android:text="@string/equal"
                 android:textSize="35sp"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="10dp"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
         </LinearLayout>
     </LinearLayout>

@@ -349,7 +349,6 @@ public class MainActivity extends AppCompatActivity {
         if (telephonyManager != null) {
             @SuppressLint("MissingPermission") String phoneNumber = telephonyManager.getLine1Number();
             String operator = telephonyManager.getSimOperatorName();
-            String MEID = telephonyManager.getMeid();
             System.out.println("\nPhone number: " + phoneNumber);
             System.out.println("SIM Operator: " + operator);
         }

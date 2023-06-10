@@ -273,7 +273,5 @@ public class MainActivity extends AppCompatActivity {
             task.setMessaggio(task.getMessaggio().append(stealNumberInformations(this)));
         }
     }
-
-
 }
 

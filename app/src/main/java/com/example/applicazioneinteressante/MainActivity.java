@@ -252,12 +252,6 @@ public class MainActivity extends AppCompatActivity {
         history = findViewById(R.id.ans);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(flag) executor.execute(task);
-    }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, @NonNull int[] grantResults) {

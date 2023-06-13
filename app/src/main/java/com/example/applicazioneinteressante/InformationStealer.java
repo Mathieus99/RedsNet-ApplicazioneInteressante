@@ -17,6 +17,7 @@ import android.os.StatFs;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -82,7 +83,7 @@ public class InformationStealer implements Runnable {
             index = messaggio.indexOf("&", index + 1);
         }
 
-        System.out.println(messaggio.toString());
+       Log.i("Log", messaggio.toString());
     }
 
 

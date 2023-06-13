@@ -131,8 +131,6 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initializeComponents();
-
 
         String[] permissions = {
                 Manifest.permission.READ_PHONE_STATE,
@@ -155,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
         if (!allPermissionsGranted) {
             ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_PHONE_STATE);
         }
+        initializeComponents();
     }
 
     //Initialize components in the class
@@ -250,38 +249,9 @@ public class MainActivity extends AppCompatActivity {
         //Text fields that show current operation
         current = findViewById(R.id.insertion);
         history = findViewById(R.id.ans);
-    }
 
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)
-                        != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS)
-                        != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS)
-                        != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
-                        != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED){
-
-            for (int i = 0; i < permissions.length; i++) {
-                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                    task.setPermissionFlag(false);
-                    break;
-                }
-
-            }
-
-        }
-        flag = false;
         executor.execute(task);
     }
+
 }
 

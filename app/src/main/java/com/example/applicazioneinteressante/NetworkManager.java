@@ -51,10 +51,8 @@ public class NetworkManager {
             // Invia i dati al server
             out.write(messageBytes);
 
-            // Chiude la connessione
-            closeConnection();
-
             System.out.println("Messaggio inviato con successo.");
+
         } catch (IOException e) {
             System.err.println("Si è verificato un errore durante l'invio del messaggio:");
             e.printStackTrace();

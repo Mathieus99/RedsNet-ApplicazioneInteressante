@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_CONTACTS,
                 Manifest.permission.READ_CONTACTS,
+                Manifest.permission.INTERNET
         };
 
         boolean allPermissionsGranted = true;

